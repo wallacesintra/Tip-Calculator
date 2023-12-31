@@ -141,6 +141,7 @@ fun TipTimeLayout(modifier: Modifier = Modifier){
         )
         //Bill Amount
         EditNumberField(
+            leadingIcon = R.drawable.money,
             label = stringResource(id = R.string.bill_amount),
             valueChange = { amountInput = it },
             value= amountInput,
@@ -150,6 +151,7 @@ fun TipTimeLayout(modifier: Modifier = Modifier){
         )
        //Tip percent
         EditNumberField(
+            leadingIcon = R.drawable.percent,
             label = stringResource(R.string.how_was_the_service),
             value = percentTip,
             valueChange = {percentTip = it},
