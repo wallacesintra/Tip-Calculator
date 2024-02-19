@@ -25,10 +25,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -36,9 +32,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tipcalculator.ui.theme.TipCalculatorTheme
-import java.text.NumberFormat
-import androidx.compose.runtime.mutableStateOf as mutableStateOf
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,18 +53,17 @@ class MainActivity : ComponentActivity() {
 }
 
 
-private fun calculateTip(
-    amount: Double,
-    tipPercent: Double,
-    roundUp: Boolean
-): String {
-    var tip = tipPercent/100 * amount
-    if (roundUp){
-        tip = kotlin.math.ceil(tip)
-    }
-    return NumberFormat.getCurrencyInstance().format(tip)
-
-}
+//fun calculateTip(
+//    amount: Double?,
+//    tipPercent: Double?,
+//    roundUp: Boolean
+//): String {
+//    var tip = tipPercent/100 * amount!!
+//    if (roundUp){
+//        tip = kotlin.math.ceil(tip)
+//    }
+//    return NumberFormat.getCurrencyInstance().format(tip)
+//}
 
 @Composable
 fun EditNumberField(
@@ -116,15 +110,17 @@ fun RoundTheTipRow(
 
 @Composable
 fun TipTimeLayout(modifier: Modifier = Modifier){
-    var amountInput by remember { mutableStateOf("") }
-    var percentTip by remember{ mutableStateOf("15")}
-    val percent = percentTip.toDoubleOrNull() ?: 0.0
-    val amount = amountInput.toDoubleOrNull() ?: 0.0
+    val viewModel = viewModel<TipViewModel>()
+    val state = viewModel.state
+//    var amountInput by remember { mutableStateOf("") }
+//    var percentTip by remember{ mutableStateOf("15")}
+//    val percent = percentTip.toDoubleOrNull() ?: 0.0
+//    val amount = amountInput.toDoubleOrNull() ?: 0.0
 
 
-    var roundUp by remember { mutableStateOf(false)}
+//    var roundUp by remember { mutableStateOf(false)}
 
-    val tip = calculateTip(amount,percent,roundUp)
+//    val tip = calculateTip(amount,percent,roundUp)
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -143,8 +139,8 @@ fun TipTimeLayout(modifier: Modifier = Modifier){
         EditNumberField(
             leadingIcon = R.drawable.money,
             label = stringResource(id = R.string.bill_amount),
-            valueChange = { amountInput = it },
-            value= amountInput,
+            valueChange = { viewModel.onBillAmountChange(it) },
+            value= if (state.billAmount != null) state.billAmount.toString() else "",
             modifier = Modifier
                 .padding(bottom = 32.dp)
                 .fillMaxWidth()
@@ -153,21 +149,20 @@ fun TipTimeLayout(modifier: Modifier = Modifier){
         EditNumberField(
             leadingIcon = R.drawable.percent,
             label = stringResource(R.string.how_was_the_service),
-            value = percentTip,
-            valueChange = {percentTip = it},
+            value = state.tipPercent.toString(),
+            valueChange = { viewModel.onTipPercentChange(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp)
-
         )
 
         RoundTheTipRow(
-            roundUp = roundUp,
-            onRoundUpChanged = {roundUp = it},
+            roundUp = state.roundTip,
+            onRoundUpChanged = {viewModel.onRoundChange(it)},
             modifier = Modifier.padding(bottom = 32.dp)
         )
         Text(
-            text = stringResource(id = R.string.tip_amount,tip),
+            text = stringResource(id = R.string.tip_amount,state.tip),
             style = MaterialTheme.typography.displaySmall
         )
 
